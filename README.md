@@ -6,12 +6,12 @@ Gets provided keys from [Consul KV store](https://www.consul.io/), and puts them
 const parser = require("consul-kv-parser");
 const Parser = new parser({
 	parser: {
-  		prefix: "production"
+        prefix: "production"
   	},
   	consul: {
-  		host: "localhost",
-    	promisify: true
-  	}
+        host: "localhost",
+        promisify: true
+    }
 });
 
 Parser.connect();
@@ -23,9 +23,9 @@ Parser.parse(key).then((values) => console.log(values));
 //will result in this object
 {
 	some: {
-    	key: "some value",
+        key: "some value",
         other: {
-        	num: 123
+            num: 123
         }
     }    
 }

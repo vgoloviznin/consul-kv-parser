@@ -1,6 +1,6 @@
 {
   "name": "consul-kv-parser",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Gets and parses keys from Consul KV store",
   "main": "./lib",
   "scripts": {

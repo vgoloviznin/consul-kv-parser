@@ -5,7 +5,7 @@ Gets provided keys from [Consul KV store](https://www.consul.io/), and puts them
 ```javascript
 const parser = require("consul-kv-parser");
 const Parser = new parser({
-	parser: {
+    parser: {
         prefix: "production"
   	},
   	consul: {
@@ -14,20 +14,24 @@ const Parser = new parser({
     }
 });
 
+//connects to Consul
 Parser.connect();
 let keys = [
-	{key: "some/key", require: true},
-    {key: "some/other/num", type: parser.types.number}
+  {key: "some/key", require: true},
+  {key: "some/other/num", type: parser.types.number}
 ];
+
+//parse returns a promise which resolves into object containing 
+//parsed values
 Parser.parse(key).then((values) => console.log(values));
 //will result in this object
 {
 	some: {
-        key: "some value",
-        other: {
-            num: 123
-        }
-    }    
+    key: "some value",
+    other: {
+        num: 123
+    }
+  }    
 }
 ```
 
@@ -46,7 +50,7 @@ npm i --save consul-kv-parser
 const parser = require("consul-kv-parser");
 const config = {
   consul: {
-  	host: "localhost",
+    host: "localhost",
     promisify: true
   }
 }
@@ -65,7 +69,7 @@ You can specify prefix that will be appended at the beginning of all keys, by pr
 const parser = require("consul-kv-parser");
 const config = {
   parser: {
-  	prefix: "production"
+    prefix: "production"
   }
 }
 const Parser = new parser(config);
@@ -79,10 +83,10 @@ _Resulting object won't have `prefix` as a root property_
 const parser = require("consul-kv-parser");
 const config = {
   parser: {
-  	prefix: "production"
+    prefix: "production"
   },
   consul: {
-  	host: "localhost",
+    host: "localhost",
     promisify: true
   }
 }
@@ -96,10 +100,10 @@ They keys that you pass to `parse` method of the parser must be an array of obje
 ```
 let keys = [
 	{
-    	key: "some/key", //required property
-        type: parser.types().number, //optional property
-        require: true //optional property
-    }
+    key: "some/key", //required property
+    type: parser.types().number, //optional property
+    require: true //optional property
+  }
 ];
 ```
 

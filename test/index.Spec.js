@@ -12,9 +12,11 @@ const assert = chai.assert;
 
 describe("- Consul Parser test", () => {
     let Parser;
+    let Cache;
 
     before(() => {
         Parser = require("../lib");
+        Cache = require("../lib/cache");
     });
 
     describe("- Initialization test", () => {
@@ -227,5 +229,103 @@ describe("- Consul Parser test", () => {
                 });
             });
         });        
+    });
+
+    describe('- getIn test', () => {
+        let parser;
+        let getCacheValueStub;
+        let setCacheValueStub;
+
+        beforeEach(() => {
+            parser = new Parser();
+            getCacheValueStub = sinon.stub(Cache, 'getValue');
+            setCacheValueStub = sinon.stub(Cache, 'setValue');
+        });
+
+        afterEach(() => {
+            getCacheValueStub.restore();
+            setCacheValueStub.restore();
+        });
+
+        describe('- Throws errors correctly', () => {
+            it('- correctly throw error if values are not initialized', () => {
+                parser.values = undefined;
+
+                try {
+                    const values = parser.getIn('a', 'b');
+                } catch (err) {
+                    assert.equal(err.message, 'Values are not initialized');
+                }
+            });
+
+            it('- correctly throw error if path is incorrect', () => {
+                parser.values = {
+                    a: { b: { c: 1 } }
+                };
+
+                try {
+                    const values = parser.getIn('a', 'c', 'b');
+                } catch (err) {
+                    assert.equal(err.message, 'Incorrect path: a,c,b')
+                }
+            });
+        });
+
+        describe('- Return correct values', () => {
+            it('- return cached value if such exists', () => {
+                parser.values = {
+                    a: { b: { c: 1 } }
+                };
+
+                const cachedValue = 'some cached value';
+                getCacheValueStub.returns(cachedValue);
+
+                const value = parser.getIn('a', 'b', 'c');
+                assert.equal(value, cachedValue);
+
+                sinon.assert.calledWithExactly(getCacheValueStub, 'a,b,c');
+                sinon.assert.notCalled(setCacheValueStub);
+            });
+
+            it('- correctly cache values', () => {
+                parser.values = {
+                    a: { b: { c: 1 } }
+                };
+
+                getCacheValueStub.returns(false);
+
+                const value = parser.getIn('a', 'b', 'c');
+
+                sinon.assert.calledWithExactly(setCacheValueStub, 'a,b,c', 1);
+            });
+
+            it('- correctly parse path and return value', () => {
+                parser.values = {
+                    a: { b: { c: 1 } }
+                };
+
+                getCacheValueStub.returns(false);
+                setCacheValueStub.returns(true);
+
+                const paths = [
+                    {
+                        p: ['a'],
+                        expectedValue: { b: { c: 1 } }
+                    },
+                    {
+                        p: ['a', 'b'],
+                        expectedValue: { c: 1 }
+                    },
+                    {
+                        p: ['a', 'b', 'c'],
+                        expectedValue: 1
+                    }
+                ];
+
+                paths.forEach(({ p, expectedValue }) => {
+                    assert.deepEqual(parser.getIn(...p), expectedValue);
+                });
+            });
+        });
     });
 });

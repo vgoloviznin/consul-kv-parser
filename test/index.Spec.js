@@ -269,6 +269,29 @@ describe("- Consul Parser test", () => {
                     assert.equal(err.message, 'Incorrect path: a,c,b')
                 }
             });
+
+            it('- correctly throw error only if field is undefined', () => {
+                parser.values = {
+                    a: {
+                        b: 0,
+                        c: null,
+                        d: undefined
+                    }
+                };
+
+                sinon.spy(parser, 'getIn');
+
+                assert.equal(parser.getIn('a', 'b'), 0);
+                assert.equal(parser.getIn('a', 'c'), null);
+
+                try {
+                    parser.getIn('a', 'd');
+                } catch (err) {
+                    assert.equal(err.message, 'Incorrect path: a,d')
+                }
+
+                sinon.assert.threw(parser.getIn);
+            });
         });
 
         describe('- Return correct values', () => {
